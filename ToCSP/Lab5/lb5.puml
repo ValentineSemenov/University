@@ -1,0 +1,83 @@
+@startuml
+
+title Пользователь покупает товар
+
+actor Client
+actor Librarian
+participant Book
+participant Database
+participant CashBox
+participant Bill
+
+activate Client
+create Book
+loop Пока не все книги добавлены
+    Client -> Book : Выбрать книгу
+    deactivate Client
+    Book -> Librarian : addItem()
+    activate Librarian
+end
+
+activate Librarian
+create Database
+loop Проверка уровня доступа
+    Librarian -> Database : checkLvl()
+    deactivate Librarian
+    activate Database
+    Database -> Librarian : Уровень доступа проверен 
+    deactivate Database
+    activate Librarian
+    Librarian -> Database : checkAvail()
+    deactivate Librarian
+    activate Database
+    
+    
+end
+
+loop Проверка наличия
+    Database -> Librarian: CheckItem()
+    deactivate Database
+    activate Librarian
+    Librarian -> Client : Есть в наличии
+    deactivate Librarian
+    activate Client
+end
+
+activate Client
+alt Цена устраивает
+    create CashBox
+    Client -> CashBox : createBill()
+    deactivate Client
+    activate CashBox
+    create Bill
+    CashBox -> Bill : Bill()
+    deactivate CashBox
+    activate Bill
+    Client <- Bill
+    deactivate Bill
+    activate Client
+    Client -> CashBox : pay()
+    deactivate Client
+    activate CashBox
+    CashBox -> Bill : pay()
+    deactivate CashBox
+    activate Bill
+    Client <- Bill
+    deactivate Bill
+    activate Client
+    Client -> Database : takeItems()
+    deactivate Client
+    activate Database
+    deactivate Client
+    
+    loop Пока не выданы все товары
+        Database -> Client : giveItem()
+        deactivate Database
+        activate Client
+    end
+end
+
+deactivate Client
+
+
+@enduml
